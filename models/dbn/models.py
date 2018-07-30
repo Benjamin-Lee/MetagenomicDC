@@ -104,7 +104,7 @@ class BinaryRBM(BaseEstimator, TransformerMixin):
                 self.c += self.learning_rate * (accum_delta_c / self.batch_size)
             if self.verbose:
                 error = self._compute_reconstruction_error(data)
-                print ">> Epoch %d finished \tRBM Reconstruction error %f" % (iteration, error)
+                print(">> Epoch %d finished \tRBM Reconstruction error %f" % (iteration, error))
 
     def _contrastive_divergence(self, vector_visible_units):
         """
@@ -249,13 +249,13 @@ class UnsupervisedDBN(BaseEstimator, TransformerMixin):
 
         # Fit RBM
         if self.verbose:
-            print "[START] Pre-training step:"
+            print("[START] Pre-training step:")
         input_data = X
         for rbm in self.rbm_layers:
             rbm.fit(input_data)
             input_data = rbm.transform(input_data)
         if self.verbose:
-            print "[END] Pre-training step"
+            print("[END] Pre-training step")
         return self
 
     def transform(self, X):
@@ -270,11 +270,10 @@ class UnsupervisedDBN(BaseEstimator, TransformerMixin):
         return input_data
 
 
-class AbstractSupervisedDBN:
+class AbstractSupervisedDBN(metaclass=ABCMeta):
     """
     Abstract class for supervised Deep Belief Network.
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self,
                  unsupervised_dbn_class,
@@ -364,11 +363,10 @@ class AbstractSupervisedDBN:
         return
 
 
-class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN):
+class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN, metaclass=ABCMeta):
     """
     Abstract class for supervised Deep Belief Network in NumPy
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, **kwargs):
         super(NumPyAbstractSupervisedDBN, self).__init__(UnsupervisedDBN, **kwargs)
@@ -448,7 +446,7 @@ class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN):
 
             if self.verbose:
                 error = np.mean(np.sum(matrix_error, 1))
-                print ">> Epoch %d finished \tANN training loss %f" % (iteration, error)
+                print(">> Epoch %d finished \tANN training loss %f" % (iteration, error))
 
     def _backpropagation(self, input_vector, label):
         """
@@ -471,7 +469,7 @@ class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN):
         activation_output_layer = layers_activation[-1]
         delta_output_layer = self._compute_output_layer_delta(y, activation_output_layer)
         deltas.append(delta_output_layer)
-        layer_idx = range(len(self.unsupervised_dbn.rbm_layers))
+        layer_idx = list(range(len(self.unsupervised_dbn.rbm_layers)))
         layer_idx.reverse()
         delta_previous_layer = delta_output_layer
         for layer in layer_idx:
@@ -517,7 +515,7 @@ class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN):
             rbm.c /= self.p
 
         if self.verbose:
-            print "[START] Fine tuning step:"
+            print("[START] Fine tuning step:")
 
         if self.unsupervised_dbn.optimization_algorithm == 'sgd':
             self._stochastic_gradient_descent(data, labels)
@@ -530,7 +528,7 @@ class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN):
             rbm.c *= self.p
 
         if self.verbose:
-            print "[END] Fine tuning step"
+            print("[END] Fine tuning step")
 
     @abstractmethod
     def _compute_loss(self, predicted, label):
@@ -571,7 +569,7 @@ class SupervisedDBNClassification(NumPyAbstractSupervisedDBN, ClassifierMixin):
         :param indexes: array-like, shape = (n_samples, )
         :return:
         """
-        return map(lambda idx: self.idx_to_label_map[idx], indexes)
+        return [self.idx_to_label_map[idx] for idx in indexes]
 
     def _compute_output_units(self, vector_visible_units):
         """

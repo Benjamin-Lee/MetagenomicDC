@@ -6,7 +6,7 @@ import sys
 import math
 import numpy as np
 #############################################################################
-def make_kmer_list (k, alphabet):
+def make_kmer_list(k, alphabet):
 
     # Base case.
     if (k == 1):
@@ -26,15 +26,15 @@ def make_kmer_list (k, alphabet):
 
     # Recursive call.
     return_value = []
-    for kmer in make_kmer_list(k-1, alphabet):
+    for kmer in make_kmer_list(k - 1, alphabet):
         for i_letter in range(0, alphabet_length):
             return_value.append(kmer + alphabet[i_letter])
-              
+
     return(return_value)
 
 ##############################################################################
-def make_upto_kmer_list (k_values,
-                         alphabet):
+def make_upto_kmer_list(k_values,
+                        alphabet):
 
     # Compute the k-mer for each value of k.
     return_value = []
@@ -42,12 +42,12 @@ def make_upto_kmer_list (k_values,
         return_value.extend(make_kmer_list(k, alphabet))
 
     return(return_value)
-                 
+
 ##############################################################################
-def normalize_vector (normalize_method,
-                      k_values,
-                      vector,
-                      kmer_list):
+def normalize_vector(normalize_method,
+                     k_values,
+                     vector,
+                     kmer_list):
 
     # Do nothing if there's no normalization.
     if (normalize_method == "none"):
@@ -88,63 +88,63 @@ def normalize_vector (normalize_method,
 
 ##############################################################################
 # Make a copy of a given string, substituting one letter.
-def substitute (position,
-                letter,
-                string):
+def substitute(position,
+               letter,
+               string):
 
     return_value = ""
     if (position > 0):
         return_value = return_value + string[0:position]
     return_value = return_value + letter
     if (position < (len(string) - 1)):
-        return_value = return_value + string[position+1:]
-                   
+        return_value = return_value + string[position + 1:]
+
     return(return_value)
 
 
 ##############################################################################
-def compute_bin_num (num_bins,
-                     position,
-                     k,
-                     numbers):
-  
-  # If no binning, just return.
-  if (num_bins == 1):
-    return(0)
+def compute_bin_num(num_bins,
+                    position,
+                    k,
+                    numbers):
 
-  # Compute the mean value for this k-mer.
-  mean = 0
-  for i in range(0, k):
-    mean += float(numbers[position + i])
-  mean /= k
+    # If no binning, just return.
+    if (num_bins == 1):
+        return(0)
 
-  # Find what quantile it lies in.
-  for i_bin in range(0, num_bins):
-    if (mean <= boundaries[k][i_bin]):
-      break
+    # Compute the mean value for this k-mer.
+    mean = 0
+    for i in range(0, k):
+        mean += float(numbers[position + i])
+    mean /= k
 
-  # Make sure we didn't go too far.
-  if (i_bin == num_bins):
-      sys.stderr.write("bin=num_bins=%d\n", i_bin)
-      sys.exit(1);
+    # Find what quantile it lies in.
+    for i_bin in range(0, num_bins):
+        if (mean <= boundaries[k][i_bin]):
+            break
 
-  return(i_bin)
+    # Make sure we didn't go too far.
+    if (i_bin == num_bins):
+        sys.stderr.write("bin=num_bins=%d\n", i_bin)
+        sys.exit(1)
+
+    return(i_bin)
 
 ##############################################################################
-def make_sequence_vector (sequence,
-                          numbers,
-                          num_bins,
-                          revcomp,
-                          revcomp_dictionary,
-                          normalize_method,
-                          k_values,
-                          mismatch,
-                          alphabet,
-                          kmer_list,
-                          boundaries,
-                          pseudocount):
+def make_sequence_vector(sequence,
+                         numbers,
+                         num_bins,
+                         revcomp,
+                         revcomp_dictionary,
+                         normalize_method,
+                         k_values,
+                         mismatch,
+                         alphabet,
+                         kmer_list,
+                         boundaries,
+                         pseudocount):
 
-    # Make an empty counts vector.
+        # Make an empty counts vector.
     kmer_counts = []
     for i_bin in range(0, num_bins):
         kmer_counts.append({})
@@ -158,7 +158,7 @@ def make_sequence_vector (sequence,
             bin_num = compute_bin_num(num_bins, i_seq, k, numbers)
 
             # Extract this k-mer.
-            kmer = sequence[i_seq : i_seq + k]
+            kmer = sequence[i_seq: i_seq + k]
 
             # If we're doing reverse complement, store the count in the
             # the version that starts with A or C.
@@ -168,7 +168,7 @@ def make_sequence_vector (sequence,
                     kmer = rev_kmer
 
             # Increment the count.
-            if (kmer_counts[bin_num].has_key(kmer)):
+            if kmer in kmer_counts[bin_num]:
                 kmer_counts[bin_num][kmer] += 1
             else:
                 kmer_counts[bin_num][kmer] = 1
@@ -181,7 +181,7 @@ def make_sequence_vector (sequence,
                     for letter in alphabet:
 
                         # Don't count yourself as a mismatch.
-                        if (kmer[i_kmer:i_kmer+1] != letter):
+                        if (kmer[i_kmer:i_kmer + 1] != letter):
 
                             # Find the neighboring sequence.
                             neighbor = substitute(i_kmer, letter, kmer)
@@ -195,7 +195,7 @@ def make_sequence_vector (sequence,
                                     kmer = rev_kmer
 
                             # Increment the neighboring sequence.
-                            if (kmer_counts[bin_num].has_key(neighbor)):
+                            if neighbor in kmer_counts[bin_num]:
                                 kmer_counts[bin_num][neighbor] += mismatch
                             else:
                                 kmer_counts[bin_num][neighbor] = mismatch
@@ -204,7 +204,7 @@ def make_sequence_vector (sequence,
     sequence_vector = []
     for i_bin in range(0, num_bins):
         for kmer in kmer_list:
-            if (kmer_counts[i_bin].has_key(kmer)):
+            if kmer in kmer_counts[i_bin]:
                 sequence_vector.append(kmer_counts[i_bin][kmer] + pseudocount)
             else:
                 sequence_vector.append(pseudocount)
@@ -218,10 +218,10 @@ def make_sequence_vector (sequence,
     return(return_value)
 
 ##############################################################################
-def read_fasta_sequence (numeric,
-                         fasta_file):
+def read_fasta_sequence(numeric,
+                        fasta_file):
 
-    # Read 1 byte.  
+    # Read 1 byte.
     first_char = fasta_file.read(1)
     # If it's empty, we're done.
     if (first_char == ""):
@@ -238,11 +238,11 @@ def read_fasta_sequence (numeric,
     # Get the rest of the ID.
     words = line.split()
     if (len(words) == 0):
-      sys.stderr.write("No words in header line (%s)\n" % line)
-      sys.exit(1)
-##    id = words[0]
+        sys.stderr.write("No words in header line (%s)\n" % line)
+        sys.exit(1)
+    # id = words[0]
     id = words[1].split("=")[1]
-        
+
     # Read the sequence, through the next ">".
     first_char = fasta_file.read(1)
     sequence = ""
@@ -266,7 +266,7 @@ def read_fasta_sequence (numeric,
             if (letter != " "):
                 clean_sequence = clean_sequence + letter
         sequence = clean_sequence.upper()
-        
+
     return([id, sequence])
 
 ##############################################################################
@@ -292,28 +292,28 @@ def read_sequence_and_numbers(fasta_file,
         if (len(fasta_sequence) != len(number_list)):
             sys.stderr.write("Found sequence of length %d with %d numbers.\n"
                              % (len(sequence), len(number_list)))
-            print sequence
-            print numbers
+            print(sequence)
+            print(numbers)
             sys.exit(1)
     else:
         number_list = ""
 
     return(fasta_id, fasta_sequence, number_list)
-                                                      
-    
+
+
 ##############################################################################
-def find_revcomp (sequence,
-                  revcomp_dictionary):
+def find_revcomp(sequence,
+                 revcomp_dictionary):
 
     # Save time by storing reverse complements in a hash.
-    if (revcomp_dictionary.has_key(sequence)):
+    if sequence in revcomp_dictionary:
         return(revcomp_dictionary[sequence])
 
     # Make a reversed version of the string.
     rev_sequence = list(sequence)
     rev_sequence.reverse()
     rev_sequence = ''.join(rev_sequence)
-    
+
     return_value = ""
     for letter in rev_sequence:
         if (letter == "A"):
@@ -336,9 +336,9 @@ def find_revcomp (sequence,
     return(return_value)
 
 ##############################################################################
-def compute_quantile_boundaries (num_bins,
-                                 k_values,
-                                 number_filename):
+def compute_quantile_boundaries(num_bins,
+                                k_values,
+                                number_filename):
 
     if (num_bins == 1):
         return
@@ -351,18 +351,18 @@ def compute_quantile_boundaries (num_bins,
 
         # Open the number file for reading.
         number_file = open(number_filename, "r")
-        
+
         # Read it sequence by sequence.
         all_numbers = []
         [id, numbers] = read_fasta_sequence(1, number_file)
         while (id != ""):
-            
+
             # Compute and store the mean of all k-mers.
             number_list = numbers.split()
             num_numbers = len(number_list) - k
             for i_number in range(0, num_numbers):
                 if (i_number == 0):
-                    sum = 0;
+                    sum = 0
                     for i in range(0, k):
                         sum += float(number_list[i])
                 else:
@@ -390,7 +390,7 @@ def compute_quantile_boundaries (num_bins,
         sys.stderr.write("\n")
 
     return(boundaries)
-    
+
 
 ##############################################################################
 # MAIN
@@ -405,7 +405,7 @@ usage = """Usage: fasta2matrix [options] <k> <fasta file>
 
     -revcomp    Collapse reverse complement counts.
 
-    -normalize [frequency|unitsphere] Normalize counts to be 
+    -normalize [frequency|unitsphere] Normalize counts to be
                 frequencies or project onto unit sphere.  With -upto,
                 normalization is done separately for each k.
 
@@ -413,9 +413,9 @@ usage = """Usage: fasta2matrix [options] <k> <fasta file>
 
     -alphabet <string> Set the alphabet arbitrarily.
 
-    -mismatch <value>  Assign count of <value> to k-mers that 
+    -mismatch <value>  Assign count of <value> to k-mers that
                        are 1 mismatch away.
-    
+
     -binned <numbins> <file>  Create <numbins> vectors for each
                               sequence, and place each k-mer count
                               into the bin based upon its corresponding
@@ -484,23 +484,23 @@ fasta_filename = sys.argv[2]
 output_filename = sys.argv[3]
 # Check for reverse complementing non-DNA alphabets.
 if ((revcomp == 1) and (alphabet != "ACGT")):
-  sys.stderr.write("Attempted to reverse complement ")
-  sys.stderr.write("a non-DNA alphabet (%s)\n" % alphabet)
+    sys.stderr.write("Attempted to reverse complement ")
+    sys.stderr.write("a non-DNA alphabet (%s)\n" % alphabet)
 
 # Make a list of all values of k.
 k_values = []
 if (upto == 1):
-  start_i_k = 1
+    start_i_k = 1
 else:
-  start_i_k = k
-k_values = range(start_i_k, k+1)
+    start_i_k = k
+k_values = range(start_i_k, k + 1)
 
 # If numeric binning is turned on, compute quantile boundaries for various
 # values of k.
 boundaries = compute_quantile_boundaries(num_bins, k_values, number_filename)
-  
+
 # Make a list of all k-mers.
-kmer_list = make_upto_kmer_list(k_values, alphabet);
+kmer_list = make_upto_kmer_list(k_values, alphabet)
 sys.stdout.write("Consideriamo %d kmers.\n" % len(kmer_list))
 
 # Set up a dictionary to cache reverse complements.
@@ -508,17 +508,17 @@ revcomp_dictionary = {}
 
 # Use lexicographically first version of {kmer, revcomp(kmer)}.
 if (revcomp == 1):
-  new_kmer_list = []
-  for kmer in kmer_list:
-      rev_kmer = find_revcomp(kmer, revcomp_dictionary)
-      if (cmp(kmer, rev_kmer) <= 0):
-          new_kmer_list.append(kmer)
-  kmer_list = new_kmer_list;
-  sys.stdout.write("Reduced to %d kmers.\n" % len(kmer_list))
+    new_kmer_list = []
+    for kmer in kmer_list:
+        rev_kmer = find_revcomp(kmer, revcomp_dictionary)
+        if (cmp(kmer, rev_kmer) <= 0):
+            new_kmer_list.append(kmer)
+    kmer_list = new_kmer_list
+    sys.stdout.write("Reduced to %d kmers.\n" % len(kmer_list))
 
 # Print the corner of the matrix.
 
-outfile=open(output_filename,"wb")
+outfile = open(output_filename, "w")
 
 # Print the title row.
 
@@ -528,24 +528,24 @@ outfile.write("seq_id,")
 
 # Open the sequence file.
 if (fasta_filename == "-"):
-  fasta_file = sys.stdin
+    fasta_file = sys.stdin
 else:
-  fasta_file = open(fasta_filename, "r")
+    fasta_file = open(fasta_filename, "r")
 if (number_filename == ""):
-  number_file = 0
+    number_file = 0
 else:
-  number_file = open(number_filename, "r")
+    number_file = open(number_filename, "r")
 #for i_bin in range(1, num_bins+1):
 for kmer in kmer_list:
-  #if (num_bins > 1):
+    #if (num_bins > 1):
     #outfile.write("%s-%d," % (kmer, i_bin))
-      #i+=1
-  #else:
-    if(kmer==kmer_list[len(kmer_list)-1]):
-      outfile.write("%s" % kmer)
+        #i+=1
+    #else:
+    if(kmer == kmer_list[len(kmer_list) - 1]):
+        outfile.write("%s" % kmer)
     else:
-      outfile.write("%s," %kmer)
-      #i+=1
+        outfile.write("%s," % kmer)
+        #i+=1
 
 outfile.write("\n")
 # Read the first sequence.
@@ -555,53 +555,48 @@ outfile.write("\n")
 
 # Iterate till we've read the whole file.
 i_sequence = 1
-vett=np.zeros(len(kmer_list),dtype=int)
+vett = np.zeros(len(kmer_list), dtype=int)
 while (id != ""):
 
-  # Tell the user what's happening.
-  if (i_sequence % 1000 == 0):
-    sys.stdout.write("Reading %dth sequenza.\n" % i_sequence)
+    # Tell the user what's happening.
+    if (i_sequence % 1000 == 0):
+        sys.stdout.write("Reading %dth sequenza.\n" % i_sequence)
 
-  # Compute the sequence vector.
-  vector = make_sequence_vector(sequence,
-                                numbers,
-                                num_bins,
-                                revcomp,
-                                revcomp_dictionary,
-                                normalize_method,
-                                k_values,
-                                mismatch,
-                                alphabet,
-                                kmer_list,
-                                boundaries,
-                                pseudocount)
+    # Compute the sequence vector.
+    vector = make_sequence_vector(sequence,
+                                  numbers,
+                                  num_bins,
+                                  revcomp,
+                                  revcomp_dictionary,
+                                  normalize_method,
+                                  k_values,
+                                  mismatch,
+                                  alphabet,
+                                  kmer_list,
+                                  boundaries,
+                                  pseudocount)
 
-  # Print the formatted vector.
-  outfile.write("%s," % id)
-  
-  count=len(kmer_list)
+    # Print the formatted vector.
+    outfile.write("%s," % id)
 
-  for element in vector:
-    if(count!=1):
-        outfile.write("%d," % element)
-    else:
-        outfile.write("%d" % element)
-    count = count-1
-        
-  outfile.write("\n")
-  # Read the next sequence.
-  [id, sequence, numbers] = read_sequence_and_numbers(fasta_file,
-                                                      number_filename,
-                                                      number_file)
-  i_sequence += 1
+    count = len(kmer_list)
+
+    for element in vector:
+        if(count != 1):
+            outfile.write("%d," % element)
+        else:
+            outfile.write("%d" % element)
+        count = count - 1
+
+    outfile.write("\n")
+    # Read the next sequence.
+    [id, sequence, numbers] = read_sequence_and_numbers(fasta_file,
+                                                        number_filename,
+                                                        number_file)
+    i_sequence += 1
 # Close the file.
-  i=0
+    i = 0
 
 
 outfile.close()
 fasta_file.close()
-
-
-
-
-

@@ -1,0 +1,8 @@
+biopython
+keras
+numpy
+tensorflow
+scikit-learn
+tqdm
+xgboost
+tpot
