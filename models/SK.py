@@ -49,8 +49,6 @@ def load_data(file):
 # Training
 def create_model():
     classifier = linear_model.LogisticRegression(class_weight="balanced") # 88.3% with k=7
-    # classifier = MLPClassifier(verbose=1) # 0.874 with k=7, 85% with hidden_layer_sizes=(50,), 88% with hidden_layer_sizes=(150,) 0.8833 with hidden_layer_sizes=(200), 0.8859 with (250,), 0.88718820861678 with (300)
-    # classifier = MLPClassifier(verbose=1,  hidden_layer_sizes=(250,))
     return classifier
 
 def train_and_evaluate_model(model, X_train, Y_train, X_test, Y_test):
