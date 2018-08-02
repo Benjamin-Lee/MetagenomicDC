@@ -11,7 +11,14 @@ It can be successfully used for classifying both SG and AMP data.
 * Keras library (2.x)
 
 
-###
+## Note
+
+This is my (Benjamin Lee) fork of the MetagenomicDC repository for testing. Be
+aware that I have changed this repository to support Python 3 and refactored
+some of the code. Additionally, I have added another model,
+[`SK.py`](models/SK.py) and well as a [folder containing the
+results](models/results) of the model.
+
 ### Datasets
 This distribution contains three datasets. They are available in "__data__" folder.
 * The "__1000seq.fasta__" dataset has been used for experiments in the manuscript submitted for pubblication at BMC Bioinformatics journal. It is composed by a training dataset with 1000 16S fasta sequences in unaligned fasta format, with 100 genera and 10 species of each genus. All of them are extracted from Rfam database (release 11, update 5 dated September 30, 2016).
